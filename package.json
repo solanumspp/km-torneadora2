@@ -1,0 +1,17 @@
+{
+  "name": "estoque-km-torneadora",
+  "version": "1.0.0",
+  "description": "K&M Torneadora - Sistema de Controle de Estoque",
+  "scripts": {
+    "dev": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=frontend",
+    "start": "node backend/server.js"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
