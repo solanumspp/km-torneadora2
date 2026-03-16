@@ -2,12 +2,14 @@ import { useState } from 'react'
 import Fornecedores from './pages/Fornecedores'
 import Produtos from './pages/Produtos'
 import Associacao from './pages/Associacao'
+import Clientes from './pages/Clientes'
 import './App.css'
 
 const TABS = [
   { id: 'fornecedores', label: 'Fornecedores' },
   { id: 'produtos',     label: 'Maquinário' },
   { id: 'associacao',   label: 'Associação' },
+  { id: 'clientes',     label: 'Clientes' },
 ]
 
 export default function App() {
@@ -40,6 +42,7 @@ export default function App() {
         {tab === 'fornecedores' && <Fornecedores />}
         {tab === 'produtos'     && <Produtos />}
         {tab === 'associacao'   && <Associacao />}
+        {tab === 'clientes'     && <Clientes />}
       </main>
     </div>
   )

@@ -182,3 +182,19 @@
   white-space: nowrap;
 }
 .btn-cancel:hover { background: var(--surface); }
+
+/* Barra de busca */
+.search-bar { display: flex; }
+.search-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 9px 14px;
+  font-size: 13px;
+  width: 100%;
+  max-width: 420px;
+  outline: none;
+}
+.search-input:focus { border-color: var(--accent); }
+.muted { color: var(--muted); font-style: italic; font-size: 12px; }

@@ -9,6 +9,7 @@ app.use(express.json())
 app.use('/fornecedores', require('./controllers/fornecedorController'))
 app.use('/produtos',     require('./controllers/produtoController'))
 app.use('/associacao',   require('./controllers/associacaoController'))
+app.use('/clientes',     require('./controllers/clienteController'))
 
 const distPath = path.join(__dirname, '../frontend/dist')
 app.use(express.static(distPath))
