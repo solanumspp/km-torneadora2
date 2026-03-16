@@ -11,6 +11,8 @@ export default function Produtos() {
   const [form, setForm] = useState({ nome: '', categoria: '', descricao: '', preco: '', quantidade: '' })
   const [loading, setLoading] = useState(false)
   const [msg, setMsg]         = useState(null)
+  const [editando, setEditando] = useState(null)
+  const [editForm, setEditForm] = useState({ preco: '', quantidade: '' })
 
   const carregar = () => {
     fetch(API).then(r => r.json()).then(setLista)
@@ -46,6 +48,26 @@ export default function Produtos() {
   const excluir = async (id) => {
     await fetch(`${API}/${id}`, { method: 'DELETE' })
     carregar()
+  }
+
+  const abrirEditar = (p) => {
+    setEditando(p.id)
+    setEditForm({ preco: p.preco, quantidade: p.quantidade })
+  }
+
+  const salvarEdicao = async () => {
+    if (!editForm.preco) return
+    try {
+      await fetch(`${API}/${editando}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preco: Number(editForm.preco), quantidade: Number(editForm.quantidade) })
+      })
+      setEditando(null)
+      carregar()
+    } catch {
+      alert('Erro ao atualizar')
+    }
   }
 
   const nomeFornecedor = (id) => {
@@ -106,15 +128,49 @@ export default function Produtos() {
               <tr><td colSpan={7} className="empty">Nenhum equipamento cadastrado</td></tr>
             )}
             {lista.map(p => (
-              <tr key={p.id}>
-                <td className="id-col">#{p.id}</td>
-                <td><strong>{p.nome}</strong><br/><span className="sub-desc">{p.descricao}</span></td>
-                <td><span className="tag-cat">{p.categoria}</span></td>
-                <td className="mono">R$ {Number(p.preco).toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
-                <td className="mono">{p.quantidade}</td>
-                <td>{nomeFornecedor(p.fornecedorId)}</td>
-                <td><button className="btn-danger" onClick={() => excluir(p.id)}>Excluir</button></td>
-              </tr>
+              editando === p.id ? (
+                <tr key={p.id} className="editing-row">
+                  <td className="id-col">#{p.id}</td>
+                  <td><strong>{p.nome}</strong></td>
+                  <td><span className="tag-cat">{p.categoria}</span></td>
+                  <td>
+                    <input
+                      type="number"
+                      className="inline-input"
+                      value={editForm.preco}
+                      onChange={e => setEditForm(f => ({ ...f, preco: e.target.value }))}
+                      placeholder="Preço"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      className="inline-input inline-input-sm"
+                      value={editForm.quantidade}
+                      onChange={e => setEditForm(f => ({ ...f, quantidade: e.target.value }))}
+                      placeholder="Qtd"
+                    />
+                  </td>
+                  <td>{nomeFornecedor(p.fornecedorId)}</td>
+                  <td className="action-btns">
+                    <button className="btn-save" onClick={salvarEdicao}>Salvar</button>
+                    <button className="btn-cancel" onClick={() => setEditando(null)}>Cancelar</button>
+                  </td>
+                </tr>
+              ) : (
+                <tr key={p.id}>
+                  <td className="id-col">#{p.id}</td>
+                  <td><strong>{p.nome}</strong><br/><span className="sub-desc">{p.descricao}</span></td>
+                  <td><span className="tag-cat">{p.categoria}</span></td>
+                  <td className="mono">R$ {Number(p.preco).toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+                  <td className="mono">{p.quantidade}</td>
+                  <td>{nomeFornecedor(p.fornecedorId)}</td>
+                  <td className="action-btns">
+                    <button className="btn-edit" onClick={() => abrirEditar(p)}>Editar</button>
+                    <button className="btn-danger" onClick={() => excluir(p.id)}>Excluir</button>
+                  </td>
+                </tr>
+              )
             ))}
           </tbody>
         </table>
