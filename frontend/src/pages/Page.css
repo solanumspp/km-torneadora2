@@ -1,0 +1,136 @@
+.page { display: flex; flex-direction: column; gap: 24px; }
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.page-title {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.02em;
+}
+.badge {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+  font-family: var(--mono);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+.card-title, .section-title {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 8px;
+}
+.card-desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 12px; color: var(--muted); }
+.field-full { grid-column: 1 / -1; }
+
+.msg {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.msg-ok   { background: rgba(245,166,35,.1);  border: 1px solid rgba(245,166,35,.3);  color: var(--accent); }
+.msg-erro { background: rgba(255,85,102,.1);  border: 1px solid rgba(255,85,102,.3);  color: var(--danger); }
+
+.alert-warning {
+  background: rgba(245,166,35,.08);
+  border: 1px solid rgba(245,166,35,.25);
+  color: var(--accent);
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+}
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.data-table th {
+  text-align: left;
+  padding: 10px 14px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  border-bottom: 1px solid var(--border);
+}
+.data-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(58,53,32,.8);
+  vertical-align: middle;
+}
+.data-table tbody tr:hover { background: var(--surface); }
+
+.id-col   { color: var(--muted); font-family: var(--mono); font-size: 11px; }
+.mono     { font-family: var(--mono); font-size: 12px; }
+.empty    { color: var(--muted); text-align: center; padding: 32px; font-style: italic; }
+.sub-desc { font-size: 11px; color: var(--muted); display: block; margin-top: 2px; }
+
+/* Tags de material */
+.tag-material {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+.tag-ferro        { background: rgba(120,120,120,.15); border: 1px solid rgba(120,120,120,.3); color: #aaa; }
+.tag-engrenagem   { background: rgba(56,189,248,.1);  border: 1px solid rgba(56,189,248,.25); color: #38bdf8; }
+.tag-revestimento { background: rgba(245,166,35,.1);  border: 1px solid rgba(245,166,35,.25); color: #f5a623; }
+.tag-chapa        { background: rgba(232,98,42,.1);   border: 1px solid rgba(232,98,42,.25);  color: #e8622a; }
+.tag-outro        { background: rgba(100,100,100,.1); border: 1px solid rgba(100,100,100,.25);color: #888; }
+
+.tag-cat {
+  background: rgba(245,166,35,.08);
+  border: 1px solid rgba(245,166,35,.2);
+  color: var(--accent);
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.tag-forn {
+  background: rgba(232,98,42,.1);
+  border: 1px solid rgba(232,98,42,.25);
+  color: var(--accent2);
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.tag-none {
+  color: var(--muted);
+  font-size: 11px;
+  font-style: italic;
+}

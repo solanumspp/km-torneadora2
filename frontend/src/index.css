@@ -1,0 +1,74 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #111008;
+  --surface:   #1a1810;
+  --surface2:  #242118;
+  --border:    #3a3520;
+  --accent:    #f5a623;
+  --accent2:   #e8622a;
+  --danger:    #ff5566;
+  --text:      #f0ead8;
+  --muted:     #8a8270;
+  --radius:    10px;
+  --mono:      'Space Mono', monospace;
+  --sans:      'DM Sans', sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+input, select {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-family: var(--sans);
+  font-size: 14px;
+  outline: none;
+  transition: border-color .2s;
+  width: 100%;
+}
+input:focus, select:focus { border-color: var(--accent); }
+input::placeholder { color: var(--muted); }
+select option { background: var(--surface2); }
+
+button {
+  font-family: var(--sans);
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius);
+  padding: 10px 20px;
+  transition: opacity .15s, transform .1s;
+}
+button:hover  { opacity: .88; }
+button:active { transform: scale(.97); }
+
+.btn-primary {
+  background: var(--accent);
+  color: #111008;
+  font-weight: 600;
+}
+.btn-danger {
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  padding: 6px 12px;
+  font-size: 12px;
+}
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
