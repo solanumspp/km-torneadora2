@@ -1,57 +1,128 @@
 const express = require('express')
 const router = express.Router()
-
-let produtos = [
-  { id: 1, nome: 'Draga',   categoria: 'Extração',   descricao: 'Equipamento para extração de minério em leitos de rios',      preco: 45000, quantidade: 3, fornecedorId: null },
-  { id: 2, nome: 'Maraca',  categoria: 'Extração',   descricao: 'Bomba de sucção para garimpo em áreas alagadas',               preco: 12000, quantidade: 5, fornecedorId: null },
-  { id: 3, nome: 'Guincho', categoria: 'Içamento',   descricao: 'Guincho mecânico para movimentação de cargas pesadas',         preco: 8500,  quantidade: 8, fornecedorId: null },
-  { id: 4, nome: 'Abacaxi', categoria: 'Perfuração', descricao: 'Equipamento de perfuração para garimpo em solo duro',          preco: 22000, quantidade: 4, fornecedorId: null },
-  { id: 5, nome: 'Lança',   categoria: 'Hidráulico', descricao: 'Lança hidráulica de alta pressão para desmonte de barranco',   preco: 6500,  quantidade: 10, fornecedorId: null },
-]
-let nextId = 6
+const supabase = require('../db/supabase')
 
 const CATEGORIAS = ['Extração', 'Içamento', 'Perfuração', 'Hidráulico', 'Outro']
 
 router.get('/categorias', (req, res) => res.json(CATEGORIAS))
 
-router.get('/', (req, res) => res.json(produtos))
+router.get('/', async (req, res) => {
+  const { data, error } = await supabase
+    .from('produtos')
+    .select('*')
+    .order('id', { ascending: true })
 
-router.get('/:id', (req, res) => {
-  const p = produtos.find(p => p.id === Number(req.params.id))
-  if (!p) return res.status(404).json({ erro: 'Produto não encontrado' })
-  res.json(p)
+  if (error) return res.status(500).json({ erro: error.message })
+
+  const formatted = data.map(p => ({
+    id: p.id,
+    nome: p.nome,
+    categoria: p.categoria,
+    descricao: p.descricao,
+    preco: Number(p.preco),
+    quantidade: p.quantidade,
+    fornecedorId: p.fornecedor_id
+  }))
+
+  res.json(formatted)
 })
 
-router.post('/', (req, res) => {
+router.get('/:id', async (req, res) => {
+  const { data, error } = await supabase
+    .from('produtos')
+    .select('*')
+    .eq('id', req.params.id)
+    .maybeSingle()
+
+  if (error) return res.status(500).json({ erro: error.message })
+  if (!data) return res.status(404).json({ erro: 'Produto não encontrado' })
+
+  const formatted = {
+    id: data.id,
+    nome: data.nome,
+    categoria: data.categoria,
+    descricao: data.descricao,
+    preco: Number(data.preco),
+    quantidade: data.quantidade,
+    fornecedorId: data.fornecedor_id
+  }
+
+  res.json(formatted)
+})
+
+router.post('/', async (req, res) => {
   const { nome, categoria, descricao, preco, quantidade } = req.body
   if (!nome || !preco) {
     return res.status(400).json({ erro: 'Nome e preço são obrigatórios' })
   }
-  const novo = {
-    id: nextId++,
-    nome,
-    categoria: categoria || 'Outro',
-    descricao: descricao || '',
-    preco: Number(preco),
-    quantidade: Number(quantidade) || 0,
-    fornecedorId: null
+
+  const { data, error } = await supabase
+    .from('produtos')
+    .insert({
+      nome,
+      categoria: categoria || 'Outro',
+      descricao: descricao || '',
+      preco: Number(preco),
+      quantidade: Number(quantidade) || 0
+    })
+    .select()
+    .single()
+
+  if (error) return res.status(500).json({ erro: error.message })
+
+  const formatted = {
+    id: data.id,
+    nome: data.nome,
+    categoria: data.categoria,
+    descricao: data.descricao,
+    preco: Number(data.preco),
+    quantidade: data.quantidade,
+    fornecedorId: data.fornecedor_id
   }
-  produtos.push(novo)
-  res.status(201).json(novo)
+
+  res.status(201).json(formatted)
 })
 
-router.put('/:id', (req, res) => {
-  const idx = produtos.findIndex(p => p.id === Number(req.params.id))
-  if (idx === -1) return res.status(404).json({ erro: 'Produto não encontrado' })
-  produtos[idx] = { ...produtos[idx], ...req.body }
-  res.json(produtos[idx])
+router.put('/:id', async (req, res) => {
+  const updates = {}
+  if (req.body.nome) updates.nome = req.body.nome
+  if (req.body.categoria) updates.categoria = req.body.categoria
+  if (req.body.descricao !== undefined) updates.descricao = req.body.descricao
+  if (req.body.preco) updates.preco = Number(req.body.preco)
+  if (req.body.quantidade !== undefined) updates.quantidade = Number(req.body.quantidade)
+  if (req.body.fornecedorId !== undefined) updates.fornecedor_id = req.body.fornecedorId
+
+  const { data, error } = await supabase
+    .from('produtos')
+    .update(updates)
+    .eq('id', req.params.id)
+    .select()
+    .single()
+
+  if (error) return res.status(500).json({ erro: error.message })
+  if (!data) return res.status(404).json({ erro: 'Produto não encontrado' })
+
+  const formatted = {
+    id: data.id,
+    nome: data.nome,
+    categoria: data.categoria,
+    descricao: data.descricao,
+    preco: Number(data.preco),
+    quantidade: data.quantidade,
+    fornecedorId: data.fornecedor_id
+  }
+
+  res.json(formatted)
 })
 
-router.delete('/:id', (req, res) => {
-  produtos = produtos.filter(p => p.id !== Number(req.params.id))
+router.delete('/:id', async (req, res) => {
+  const { error } = await supabase
+    .from('produtos')
+    .delete()
+    .eq('id', req.params.id)
+
+  if (error) return res.status(500).json({ erro: error.message })
   res.sendStatus(204)
 })
 
 module.exports = router
-module.exports.getProdutos = () => produtos
-module.exports.setProdutos = (arr) => { produtos = arr }

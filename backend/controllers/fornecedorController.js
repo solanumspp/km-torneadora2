@@ -1,41 +1,118 @@
 const express = require('express')
 const router = express.Router()
+const supabase = require('../db/supabase')
 
-let fornecedores = [
-  { id: 1, nome: 'AçoForte Ltda',        cnpj: '11.111.111/0001-11', materialFornecido: 'Ferro',        email: 'contato@acoforte.com',   telefone: '(69) 99001-0001' },
-  { id: 2, nome: 'EngreTech S.A.',        cnpj: '22.222.222/0001-22', materialFornecido: 'Engrenagens',  email: 'vendas@engretech.com',   telefone: '(69) 99002-0002' },
-  { id: 3, nome: 'RevMax Ind.',           cnpj: '33.333.333/0001-33', materialFornecido: 'Revestimento', email: 'rev@revmax.com',          telefone: '(69) 99003-0003' },
-  { id: 4, nome: 'Chapas & Metais Ltda',  cnpj: '44.444.444/0001-44', materialFornecido: 'Chapas',       email: 'chapas@metais.com',       telefone: '(69) 99004-0004' },
-]
-let nextId = 5
+router.get('/', async (req, res) => {
+  const { data, error } = await supabase
+    .from('fornecedores')
+    .select('*')
+    .order('id', { ascending: true })
 
-router.get('/', (req, res) => res.json(fornecedores))
+  if (error) return res.status(500).json({ erro: error.message })
 
-router.get('/:id', (req, res) => {
-  const f = fornecedores.find(f => f.id === Number(req.params.id))
-  if (!f) return res.status(404).json({ erro: 'Fornecedor não encontrado' })
-  res.json(f)
+  const formatted = data.map(f => ({
+    id: f.id,
+    nome: f.nome,
+    cnpj: f.cnpj,
+    materialFornecido: f.material_fornecido,
+    email: f.email,
+    telefone: f.telefone
+  }))
+
+  res.json(formatted)
 })
 
-router.post('/', (req, res) => {
+router.get('/:id', async (req, res) => {
+  const { data, error } = await supabase
+    .from('fornecedores')
+    .select('*')
+    .eq('id', req.params.id)
+    .maybeSingle()
+
+  if (error) return res.status(500).json({ erro: error.message })
+  if (!data) return res.status(404).json({ erro: 'Fornecedor não encontrado' })
+
+  const formatted = {
+    id: data.id,
+    nome: data.nome,
+    cnpj: data.cnpj,
+    materialFornecido: data.material_fornecido,
+    email: data.email,
+    telefone: data.telefone
+  }
+
+  res.json(formatted)
+})
+
+router.post('/', async (req, res) => {
   const { nome, cnpj, materialFornecido, email, telefone } = req.body
   if (!nome || !cnpj || !materialFornecido) {
     return res.status(400).json({ erro: 'Nome, CNPJ e material fornecido são obrigatórios' })
   }
-  const novo = { id: nextId++, nome, cnpj, materialFornecido, email: email || '', telefone: telefone || '' }
-  fornecedores.push(novo)
-  res.status(201).json(novo)
+
+  const { data, error } = await supabase
+    .from('fornecedores')
+    .insert({
+      nome,
+      cnpj,
+      material_fornecido: materialFornecido,
+      email: email || '',
+      telefone: telefone || ''
+    })
+    .select()
+    .single()
+
+  if (error) return res.status(500).json({ erro: error.message })
+
+  const formatted = {
+    id: data.id,
+    nome: data.nome,
+    cnpj: data.cnpj,
+    materialFornecido: data.material_fornecido,
+    email: data.email,
+    telefone: data.telefone
+  }
+
+  res.status(201).json(formatted)
 })
 
-router.put('/:id', (req, res) => {
-  const idx = fornecedores.findIndex(f => f.id === Number(req.params.id))
-  if (idx === -1) return res.status(404).json({ erro: 'Fornecedor não encontrado' })
-  fornecedores[idx] = { ...fornecedores[idx], ...req.body }
-  res.json(fornecedores[idx])
+router.put('/:id', async (req, res) => {
+  const updates = {}
+  if (req.body.nome) updates.nome = req.body.nome
+  if (req.body.cnpj) updates.cnpj = req.body.cnpj
+  if (req.body.materialFornecido) updates.material_fornecido = req.body.materialFornecido
+  if (req.body.email !== undefined) updates.email = req.body.email
+  if (req.body.telefone !== undefined) updates.telefone = req.body.telefone
+
+  const { data, error } = await supabase
+    .from('fornecedores')
+    .update(updates)
+    .eq('id', req.params.id)
+    .select()
+    .single()
+
+  if (error) return res.status(500).json({ erro: error.message })
+  if (!data) return res.status(404).json({ erro: 'Fornecedor não encontrado' })
+
+  const formatted = {
+    id: data.id,
+    nome: data.nome,
+    cnpj: data.cnpj,
+    materialFornecido: data.material_fornecido,
+    email: data.email,
+    telefone: data.telefone
+  }
+
+  res.json(formatted)
 })
 
-router.delete('/:id', (req, res) => {
-  fornecedores = fornecedores.filter(f => f.id !== Number(req.params.id))
+router.delete('/:id', async (req, res) => {
+  const { error } = await supabase
+    .from('fornecedores')
+    .delete()
+    .eq('id', req.params.id)
+
+  if (error) return res.status(500).json({ erro: error.message })
   res.sendStatus(204)
 })
 

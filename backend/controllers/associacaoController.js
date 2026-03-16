@@ -1,31 +1,58 @@
 const express = require('express')
 const router = express.Router()
-const produtoCtrl = require('./produtoController')
+const supabase = require('../db/supabase')
 
-// POST /associacao  { produtoId, fornecedorId }
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { produtoId, fornecedorId } = req.body
   if (!produtoId || !fornecedorId) {
     return res.status(400).json({ erro: 'produtoId e fornecedorId são obrigatórios' })
   }
-  const produtos = produtoCtrl.getProdutos()
-  const idx = produtos.findIndex(p => p.id === Number(produtoId))
-  if (idx === -1) return res.status(404).json({ erro: 'Produto não encontrado' })
 
-  produtos[idx].fornecedorId = Number(fornecedorId)
-  produtoCtrl.setProdutos(produtos)
-  res.json({ mensagem: 'Associação realizada com sucesso', produto: produtos[idx] })
+  const { data, error } = await supabase
+    .from('produtos')
+    .update({ fornecedor_id: Number(fornecedorId) })
+    .eq('id', Number(produtoId))
+    .select()
+    .single()
+
+  if (error) return res.status(500).json({ erro: error.message })
+  if (!data) return res.status(404).json({ erro: 'Produto não encontrado' })
+
+  const formatted = {
+    id: data.id,
+    nome: data.nome,
+    categoria: data.categoria,
+    descricao: data.descricao,
+    preco: Number(data.preco),
+    quantidade: data.quantidade,
+    fornecedorId: data.fornecedor_id
+  }
+
+  res.json({ mensagem: 'Associação realizada com sucesso', produto: formatted })
 })
 
-// DELETE /associacao/:produtoId — remove vínculo
-router.delete('/:produtoId', (req, res) => {
-  const produtos = produtoCtrl.getProdutos()
-  const idx = produtos.findIndex(p => p.id === Number(req.params.produtoId))
-  if (idx === -1) return res.status(404).json({ erro: 'Produto não encontrado' })
+router.delete('/:produtoId', async (req, res) => {
+  const { data, error } = await supabase
+    .from('produtos')
+    .update({ fornecedor_id: null })
+    .eq('id', Number(req.params.produtoId))
+    .select()
+    .single()
 
-  produtos[idx].fornecedorId = null
-  produtoCtrl.setProdutos(produtos)
-  res.json({ mensagem: 'Associação removida', produto: produtos[idx] })
+  if (error) return res.status(500).json({ erro: error.message })
+  if (!data) return res.status(404).json({ erro: 'Produto não encontrado' })
+
+  const formatted = {
+    id: data.id,
+    nome: data.nome,
+    categoria: data.categoria,
+    descricao: data.descricao,
+    preco: Number(data.preco),
+    quantidade: data.quantidade,
+    fornecedorId: data.fornecedor_id
+  }
+
+  res.json({ mensagem: 'Associação removida', produto: formatted })
 })
 
 module.exports = router
