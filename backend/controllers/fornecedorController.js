@@ -1,42 +1,77 @@
 const express = require('express')
 const router = express.Router()
+const pool = require('../db')
 
-let fornecedores = [
-  { id: 1, nome: 'AçoForte Ltda',        cnpj: '11.111.111/0001-11', materialFornecido: 'Ferro',        email: 'contato@acoforte.com',   telefone: '(69) 99001-0001' },
-  { id: 2, nome: 'EngreTech S.A.',        cnpj: '22.222.222/0001-22', materialFornecido: 'Engrenagens',  email: 'vendas@engretech.com',   telefone: '(69) 99002-0002' },
-  { id: 3, nome: 'RevMax Ind.',           cnpj: '33.333.333/0001-33', materialFornecido: 'Revestimento', email: 'rev@revmax.com',          telefone: '(69) 99003-0003' },
-  { id: 4, nome: 'Chapas & Metais Ltda',  cnpj: '44.444.444/0001-44', materialFornecido: 'Chapas',       email: 'chapas@metais.com',       telefone: '(69) 99004-0004' },
-]
-let nextId = 5
-
-router.get('/', (req, res) => res.json(fornecedores))
-
-router.get('/:id', (req, res) => {
-  const f = fornecedores.find(f => f.id === Number(req.params.id))
-  if (!f) return res.status(404).json({ erro: 'Fornecedor não encontrado' })
-  res.json(f)
+router.get('/', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT id, nome, cnpj, material_fornecido AS "materialFornecido", email, telefone FROM fornecedores ORDER BY id'
+    )
+    res.json(rows)
+  } catch (e) {
+    res.status(500).json({ erro: e.message })
+  }
 })
 
-router.post('/', (req, res) => {
+router.get('/:id', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT id, nome, cnpj, material_fornecido AS "materialFornecido", email, telefone FROM fornecedores WHERE id = $1',
+      [req.params.id]
+    )
+    if (!rows.length) return res.status(404).json({ erro: 'Fornecedor não encontrado' })
+    res.json(rows[0])
+  } catch (e) {
+    res.status(500).json({ erro: e.message })
+  }
+})
+
+router.post('/', async (req, res) => {
   const { nome, cnpj, materialFornecido, email, telefone } = req.body
   if (!nome || !cnpj || !materialFornecido) {
     return res.status(400).json({ erro: 'Nome, CNPJ e material fornecido são obrigatórios' })
   }
-  const novo = { id: nextId++, nome, cnpj, materialFornecido, email: email || '', telefone: telefone || '' }
-  fornecedores.push(novo)
-  res.status(201).json(novo)
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO fornecedores (nome, cnpj, material_fornecido, email, telefone)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, nome, cnpj, material_fornecido AS "materialFornecido", email, telefone`,
+      [nome, cnpj, materialFornecido, email || '', telefone || '']
+    )
+    res.status(201).json(rows[0])
+  } catch (e) {
+    res.status(500).json({ erro: e.message })
+  }
 })
 
-router.put('/:id', (req, res) => {
-  const idx = fornecedores.findIndex(f => f.id === Number(req.params.id))
-  if (idx === -1) return res.status(404).json({ erro: 'Fornecedor não encontrado' })
-  fornecedores[idx] = { ...fornecedores[idx], ...req.body }
-  res.json(fornecedores[idx])
+router.put('/:id', async (req, res) => {
+  const { nome, cnpj, materialFornecido, email, telefone } = req.body
+  try {
+    const { rows } = await pool.query(
+      `UPDATE fornecedores
+       SET nome = COALESCE($1, nome),
+           cnpj = COALESCE($2, cnpj),
+           material_fornecido = COALESCE($3, material_fornecido),
+           email = COALESCE($4, email),
+           telefone = COALESCE($5, telefone)
+       WHERE id = $6
+       RETURNING id, nome, cnpj, material_fornecido AS "materialFornecido", email, telefone`,
+      [nome, cnpj, materialFornecido, email, telefone, req.params.id]
+    )
+    if (!rows.length) return res.status(404).json({ erro: 'Fornecedor não encontrado' })
+    res.json(rows[0])
+  } catch (e) {
+    res.status(500).json({ erro: e.message })
+  }
 })
 
-router.delete('/:id', (req, res) => {
-  fornecedores = fornecedores.filter(f => f.id !== Number(req.params.id))
-  res.sendStatus(204)
+router.delete('/:id', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM fornecedores WHERE id = $1', [req.params.id])
+    res.sendStatus(204)
+  } catch (e) {
+    res.status(500).json({ erro: e.message })
+  }
 })
 
 module.exports = router

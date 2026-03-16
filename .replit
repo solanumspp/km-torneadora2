@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "web"]
+modules = ["nodejs-20", "web", "postgresql-16"]
 [agent]
 expertMode = true
 
@@ -59,4 +59,4 @@ externalPort = 3000
 
 [deployment]
 deploymentTarget = "vm"
-run = ["bash", "-c", "cd backend && node server.js & cd frontend && npm run build && npx serve -s dist -l 5000"]
+run = ["bash", "-c", "node backend/server.js & cd frontend && npm run build && npx serve -s dist -l 5000"]

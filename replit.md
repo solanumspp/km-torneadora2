@@ -8,7 +8,7 @@ Full-stack inventory management system for K&M Torneadora, a micro company that 
 
 - **Frontend:** React 18 + Vite, running on port 5000
 - **Backend:** Node.js + Express, running on port 3001
-- **Data:** In-memory arrays (no database — data resets on server restart)
+- **Database:** PostgreSQL (Replit built-in) — data persists across restarts
 
 ## Project Structure
 
