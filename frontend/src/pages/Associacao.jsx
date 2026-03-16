@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import './Page.css'
 
-const API_PROD  = 'http://localhost:3001/produtos'
-const API_FORN  = 'http://localhost:3001/fornecedores'
-const API_ASSOC = 'http://localhost:3001/associacao'
+const API_PROD  = '/produtos'
+const API_FORN  = '/fornecedores'
+const API_ASSOC = '/associacao'
 
 export default function Associacao() {
   const [produtos, setProdutos]         = useState([])

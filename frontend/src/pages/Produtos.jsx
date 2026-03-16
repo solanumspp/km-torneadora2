@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import './Page.css'
 
-const API      = 'http://localhost:3001/produtos'
-const API_FORN = 'http://localhost:3001/fornecedores'
+const API      = '/produtos'
+const API_FORN = '/fornecedores'
 
 export default function Produtos() {
   const [lista, setLista]           = useState([])

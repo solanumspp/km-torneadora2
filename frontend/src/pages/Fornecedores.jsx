@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './Page.css'
 
-const API = 'http://localhost:3001/fornecedores'
+const API = '/fornecedores'
 
 const MATERIAIS = ['Ferro', 'Engrenagens', 'Revestimento', 'Chapas', 'Outro']
 
