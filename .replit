@@ -57,6 +57,22 @@ externalPort = 5000
 localPort = 5001
 externalPort = 3000
 
+[[ports]]
+localPort = 5002
+externalPort = 3001
+
+[[ports]]
+localPort = 5003
+externalPort = 3002
+
+[[ports]]
+localPort = 5004
+externalPort = 3003
+
+[[ports]]
+localPort = 5005
+externalPort = 4200
+
 [deployment]
 deploymentTarget = "vm"
 run = ["bash", "-c", "node backend/server.js & cd frontend && npm run build && npx serve -s dist -l 5000"]
